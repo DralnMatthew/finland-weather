@@ -1,0 +1,20 @@
+*.class
+*.log
+
+### SBT ###
+project/
+target/
+build.properties
+tmp/
+spark-warehouse/
+
+### NODEJS NPM ###
+node_modules/
+
+.idea/
+.vscode/
+.metals/
+.DS_Store
+**/.DS_Store
+
+utils/

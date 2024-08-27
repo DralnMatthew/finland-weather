@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Finland Weather Forecast</title>
+    <link rel="shortcut icon" href="#" />
+    <meta charset="UTF-8" />
+
+    <!-- import the sources of the scrpits -->
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+    <style type="text/css">
+      h1 {
+        text-align: center;
+        margin-top: 20px;
+        color: #0a0a0a;
+        font-size: 50px;
+      }
+
+      h2 {
+        text-align: center;
+        margin-top: 10px;
+        margin-bottom: 30px;
+        color: #0a0a0a;
+        font-size: 25px;
+      }
+
+      h3 {
+        text-align: center;
+        margin-bottom: 5px;
+        color: #0a0a0a;
+        font-size: 18px;
+      }
+
+      h4 {
+        text-align: center;
+        margin-top: 100px;
+        color: #0a0a0a;
+        font-size: 100px;
+      }
+
+      div {
+        width: 100%;
+        display: block;
+        margin: auto;
+      }
+
+      path {
+        stroke: #000;
+        stroke-width: 1px;
+        fill: #aaddaa;
+      }
+
+      .column {
+        float: left;
+        width: 30%;
+        padding-left: 3%;
+        padding-right: 6%;
+        height: 700px;
+      }
+
+      .intermediateColumn {
+        float: left;
+        width: 19%;
+        height: 700px;
+      }
+
+      .row:after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      .my-legend .legend-scale ul {
+        margin-bottom: 15px;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-left: 0px;
+        padding: 0;
+        float: left;
+        list-style: none;
+      }
+
+      .my-legend .legend-scale ul li {
+        display: block;
+        float: left;
+        width: 54px;
+        margin-bottom: 6px;
+        text-align: center;
+        font-size: 75%;
+        list-style: none;
+      }
+
+      .my-legend ul.legend-labels li span {
+        display: block;
+        float: left;
+        height: 15px;
+        width: 54px;
+      }
+
+      .my-legend a {
+        color: #777;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>The Ultimately Simple Finland Weather Forecast</h1>
+    </header>
+
+    <div id="main" , class="row">
+      <!-- first div containing the geojson map and the current weather -->
+      <div id="current_div" , class="column">
+        <h2>Finland Current Weather</h2>
+        <svg id="finland_map_current" , width="600" , height="550"></svg>
+      </div>
+
+      <!-- second div containing the legend of colours -->
+      <div id="legend" , class="intermediateColumn">
+        <h4></h4>
+        <h2>Legend</h2>
+        <h3>Clear</h3>
+        <div class="my-legend">
+          <div class="legend-scale">
+            <ul class="legend-labels">
+              <li><span style="background: #ffff00"></span>< 0°C</li>
+              <li><span style="background: #ffee00"></span>(1, 10)°C</li>
+              <li><span style="background: #ffdd00"></span>(11, 20)°C</li>
+              <li><span style="background: #ffcc00"></span>(21, 30)°C</li>
+              <li><span style="background: #ffbb00"></span>> 31°C</li>
+            </ul>
+          </div>
+        </div>
+        <h2></h2>
+        <h3>Cloud</h3>
+        <div class="my-legend">
+          <div class="legend-scale">
+            <ul class="legend-labels">
+              <li><span style="background: #d2d2d2"></span>< 0°C</li>
+              <li><span style="background: #bababa"></span>(1, 10)°C</li>
+              <li><span style="background: #a5a5a5"></span>(11, 20)°C</li>
+              <li><span style="background: #939393"></span>(21, 25)°C</li>
+              <li><span style="background: #787878"></span>> 26°C</li>
+            </ul>
+          </div>
+        </div>
+        <h2></h2>
+        <h3>Fog</h3>
+        <div class="my-legend">
+          <div class="legend-scale">
+            <ul class="legend-labels">
+              <li><span style="background: #efebe9"></span>< 0°C</li>
+              <li><span style="background: #d7ccc8"></span>(1, 5)°C</li>
+              <li><span style="background: #bcaaa4"></span>(6, 10)°C</li>
+              <li><span style="background: #a1887f"></span>(11, 15)°C</li>
+              <li><span style="background: #8d6e63"></span>> 16°C</li>
+            </ul>
+          </div>
+        </div>
+        <h2></h2>
+        <h3>Rain</h3>
+        <div class="my-legend">
+          <div class="legend-scale">
+            <ul class="legend-labels">
+              <li><span style="background: #76cfff"></span>< 5°C</li>
+              <li><span style="background: #00bfff"></span>(6, 10)°C</li>
+              <li><span style="background: #00a8ff"></span>(11, 15)°C</li>
+              <li><span style="background: #0091ff"></span>(16, 25)°C</li>
+              <li><span style="background: #0079ff"></span>> 26°C</li>
+            </ul>
+          </div>
+        </div>
+        <h3>Snow</h3>
+        <div class="my-legend">
+          <div class="legend-scale">
+            <ul class="legend-labels">
+              <li><span style="background: #e0ffff"></span>< -11°C</li>
+              <li><span style="background: #c0ffff"></span>(-10, -6)°C</li>
+              <li><span style="background: #80ffff"></span>(-5, -1)°C</li>
+              <li><span style="background: #00ffff"></span>(0, 5)°C</li>
+              <li><span style="background: #4feeee"></span>> 6°C</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- third div containing the geojson map and the forecast weather -->
+      <div id="forecast_div" , class="column">
+        <h2>Finland Weather Forecast in 3 hours</h2>
+        <svg id="finland_map_forecast" , width="600" , height="550"></svg>
+      </div>
+    </div>
+
+    <script>
+      /* *** select the width and height of the svg where to draw the maps *** */
+      var svg = d3.select("#finland_map_current"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
+
+      /* *** first guess of the parameters of the projection *** */
+      var scale = 1;
+      var offset = [0, 0];
+      var projection = d3.geoMercator().scale(scale).translate(offset);
+      var pathBuilder = d3.geoPath(projection);
+
+      /* *** creating the groups for current and forecast visualizations *** */
+      const cgroup = d3.select("#finland_map_current").append("g");
+      const fgroup = d3.select("#finland_map_forecast").append("g");
+      const ccgroup = d3.select("#finland_map_current").append("g");
+      const cfgroup = d3.select("#finland_map_forecast").append("g");
+
+      /* *** get the geoData to draw the maps *** */
+      d3.json(
+        "https://raw.githubusercontent.com/TeemuKoivisto/map-of-finland/master/kuntarajat-2018-raw.json"
+      )
+        .then(function (geoData) {
+          /* adapt the size of the map */
+          let mapBounds = pathBuilder.bounds(geoData);
+          let horizontalScale =
+            0.95 / ((mapBounds[1][0] - mapBounds[0][0]) / width);
+          let verticalScale =
+            0.95 / ((mapBounds[1][1] - mapBounds[0][1]) / height);
+          let newScale =
+            horizontalScale < verticalScale ? horizontalScale : verticalScale;
+          let newOffset = [
+            (width - newScale * (mapBounds[0][0] + mapBounds[1][0])) / 2,
+            (height - newScale * (mapBounds[0][1] + mapBounds[1][1])) / 2,
+          ];
+
+          /* redefine projection */
+          projection.scale(newScale).translate(newOffset);
+
+          pathBuider = d3.geoPath(projection);
+
+          /* draw the map of current weather */
+          cgroup
+            .selectAll("path")
+            .data(geoData.features)
+            .enter()
+            .append("path")
+            .attr("d", function (feature) {
+              return pathBuilder(feature);
+            });
+
+          /* draw the map of weather forecast */
+          fgroup
+            .selectAll("path")
+            .data(geoData.features)
+            .enter()
+            .append("path")
+            .attr("d", function (feature) {
+              return pathBuilder(feature);
+            });
+        })
+        .catch(function (error) {
+          /* detect error and print it in the console log */
+          console.log("error happened: " + error);
+        });
+
+      /* *** function to draw the weather relevations and forecasts *** */
+      let draw = (datapoints) => {
+        /* parse the temperatures of current and forecast weather to celsius */
+        var ctc = datapoints.ctemp - 273.15;
+        var ftc = datapoints.ftemp - 273.15;
+
+        /* initialize the colors to default ones */
+        var ccolor = "#ffffff";
+        var fcolor = "#ffffff";
+
+        /* big switch case to compute the correct color for current weather circle */
+        switch (datapoints.cweather) {
+          case "Clear":
+            switch (true) {
+              case ctc < 0:
+                var ccolor = "#ffff00";
+                break;
+              case ctc >= 0 && ctc < 10:
+                var ccolor = "#ffee00";
+                break;
+              case ctc >= 10 && ctc < 20:
+                var ccolor = "#ffdd00";
+                break;
+              case ctc >= 20 && ctc < 30:
+                var ccolor = "#ffcc00";
+                break;
+              case ctc >= 30:
+                var ccolor = "#ffbb00";
+                break;
+            }
+            break;
+          case "Clouds":
+            switch (true) {
+              case ctc < 0:
+                var ccolor = "#d2d2d2";
+                break;
+              case ctc >= 0 && ctc < 10:
+                var ccolor = "#bababa";
+                break;
+              case ctc >= 10 && ctc < 20:
+                var ccolor = "#a5a5a5";
+                break;
+              case ctc >= 20 && ctc < 25:
+                var ccolor = "#939393";
+                break;
+              case ctc >= 25:
+                var ccolor = "#787878";
+                break;
+            }
+            break;
+          case "Fog":
+            switch (true) {
+              case ctc < 0:
+                var ccolor = "#efebe9";
+                break;
+              case ctc >= 0 && ctc < 5:
+                var ccolor = "#d7ccc8";
+                break;
+              case ctc >= 5 && ctc < 10:
+                var ccolor = "#bcaaa4";
+                break;
+              case ctc >= 10 && ctc < 15:
+                var ccolor = "#a1887f";
+                break;
+              case ctc >= 15:
+                var ccolor = "#8d6e63";
+                break;
+            }
+            break;
+          case "Rain":
+            switch (true) {
+              case ctc < 5:
+                var ccolor = "#76cfff";
+                break;
+              case ctc >= 5 && ctc < 10:
+                var ccolor = "#00bfff";
+                break;
+              case ctc >= 10 && ctc < 15:
+                var ccolor = "#00a8ff";
+                break;
+              case ctc >= 15 && ctc < 25:
+                var ccolor = "#0091ff";
+                break;
+              case ctc >= 25:
+                var ccolor = "#0079ff";
+                break;
+            }
+            break;
+          case "Snow":
+            switch (true) {
+              case ctc < -10:
+                var ccolor = "#e0ffff";
+                break;
+              case ctc >= -10 && ctc < -5:
+                var ccolor = "#c0ffff";
+                break;
+              case ctc >= -5 && ctc < 0:
+                var ccolor = "#80ffff";
+                break;
+              case ctc >= 0 && ctc < 5:
+                var ccolor = "#00ffff";
+                break;
+              case ctc >= 5:
+                var ccolor = "#4feeee";
+                break;
+            }
+            break;
+          default:
+            var ccolor = "#ffffff";
+        }
+
+        /* big switch case to compute the correct color for forecast weather circle */
+        switch (datapoints.fweather) {
+          case "Clear":
+            switch (true) {
+              case ftc < 0:
+                var fcolor = "#ffff00";
+                break;
+              case ftc >= 0 && ftc < 10:
+                var fcolor = "#ffee00";
+                break;
+              case ftc >= 10 && ftc < 20:
+                var fcolor = "#ffdd00";
+                break;
+              case ftc >= 20 && ftc < 30:
+                var fcolor = "#ffcc00";
+                break;
+              case ftc >= 30:
+                var fcolor = "#ffbb00";
+                break;
+            }
+            break;
+          case "Clouds":
+            switch (true) {
+              case ftc < 0:
+                var fcolor = "#d2d2d2";
+                break;
+              case ftc >= 0 && ftc < 10:
+                var fcolor = "#bababa";
+                break;
+              case ftc >= 10 && ftc < 20:
+                var fcolor = "#a5a5a5";
+                break;
+              case ftc >= 20 && ftc < 25:
+                var fcolor = "#939393";
+                break;
+              case ftc >= 25:
+                var fcolor = "#787878";
+                break;
+            }
+            break;
+          case "Fog":
+            switch (true) {
+              case ftc < 0:
+                var fcolor = "#efebe9";
+                break;
+              case ftc >= 0 && ftc < 5:
+                var fcolor = "#d7ccc8";
+                break;
+              case ftc >= 5 && ftc < 10:
+                var fcolor = "#bcaaa4";
+                break;
+              case ftc >= 10 && ftc < 15:
+                var fcolor = "#a1887f";
+                break;
+              case ftc >= 15:
+                var fcolor = "#8d6e63";
+                break;
+            }
+            break;
+          case "Rain":
+            switch (true) {
+              case ftc < 5:
+                var fcolor = "#76cfff";
+                break;
+              case ftc >= 5 && ftc < 10:
+                var fcolor = "#00bfff";
+                break;
+              case ftc >= 10 && ftc < 15:
+                var fcolor = "#00a8ff";
+                break;
+              case ftc >= 15 && ftc < 25:
+                var fcolor = "#0091ff";
+                break;
+              case ftc >= 25:
+                var fcolor = "#0079ff";
+                break;
+            }
+            break;
+          case "Snow":
+            switch (true) {
+              case ftc < -10:
+                var fcolor = "#e0ffff";
+                break;
+              case ftc >= -10 && ftc < -5:
+                var fcolor = "#c0ffff";
+                break;
+              case ftc >= -5 && ftc < 0:
+                var fcolor = "#80ffff";
+                break;
+              case ftc >= 0 && ftc < 5:
+                var fcolor = "#00ffff";
+                break;
+              case ftc >= 5:
+                var fcolor = "#4feeee";
+                break;
+            }
+            break;
+          default:
+            var fcolor = "#ffffff";
+        }
+
+        /* creating the circle representing the datapoint of the current weather relevations */
+        var ccircle = ccgroup.append("circle");
+        ccircle
+          .attr("cx", projection([datapoints.lon, datapoints.lat])[0])
+          .attr("cy", projection([datapoints.lon, datapoints.lat])[1])
+          .attr("r", 7)
+          .attr("fill", ccolor)
+          .attr("opacity", 0.7);
+
+        /* setting a timeout to remove the circle (current) after 90 seconds so that the map is not very crowded */
+        setTimeout(function () {
+          console.log("removing old elements");
+          ccircle.remove();
+        }, 90000);
+
+        /* creating the circle representing the datapoint of the weather forecast */
+        var fcircle = cfgroup.append("circle");
+        fcircle
+          .attr("cx", projection([datapoints.lon, datapoints.lat])[0])
+          .attr("cy", projection([datapoints.lon, datapoints.lat])[1])
+          .attr("r", 7)
+          .attr("fill", fcolor)
+          .attr("opacity", 0.7);
+
+        /* setting a timeout to remove the circle (forecast) after 90 seconds so that the map is not very crowded */
+        setTimeout(function () {
+          console.log("removing old elements");
+          fcircle.remove();
+        }, 90000);
+
+        console.log("datapoin drawn");
+      };
+
+      /* *** create the socket where to receive the messages *** */
+      const socket = new WebSocket("ws://localhost:8001/ws");
+
+      /* *** say hello to the server when the connection opens *** */
+      socket.onopen = function () {
+        console.log("connected");
+        socket.send("Hi!");
+      };
+
+      /* *** define the steps to follow when new message is received *** */
+      socket.onmessage = function (event) {
+        console.log("new message");
+        try {
+          /* parse the received data */
+          let data = JSON.parse(event.data);
+
+          /* call the function to draw the data */
+          draw(data);
+        } catch (e) {
+          /* detect and output the error for debugging purposes */
+          console.log("received data: " + event.data);
+          console.log(e);
+          return;
+        }
+      };
+    </script>
+  </body>
+</html>
